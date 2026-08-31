@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Calculadora de medidas para cuadríptico envolvente." />
+  <title>Calculadora de Cuadríptico Envolvente</title>
+
+  <style>
+    :root{
+      --teal:#0F5B5D;
+      --teal-dark:#0A4446;
+      --teal-soft:#EAF4F3;
+      --gold:#C69A4B;
+      --gold-soft:#F8F0E1;
+      --ink:#193234;
+      --muted:#6D7A7B;
+      --line:#D9E2E1;
+      --paper:#FAF9F6;
+      --white:#FFFFFF;
+
+      --serif:"Roslindale Condensed","Roslindale","Iowan Old Style","Baskerville","Times New Roman",serif;
+      --sans:"Aktiv Grotesk","Helvetica Neue",Arial,sans-serif;
+    }
+
+    *{ box-sizing:border-box; }
+
+    html{ -webkit-text-size-adjust:100%; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top left, rgba(198,154,75,.10), transparent 28rem),
+        linear-gradient(180deg,#FBFAF7 0%,#F4F7F6 100%);
+      color:var(--ink);
+      font-family:var(--sans);
+      padding:32px 16px;
+    }
+
+    .wrap{
+      width:min(920px,100%);
+      margin:0 auto;
+    }
+
+    .header{
+      text-align:center;
+      margin-bottom:22px;
+    }
+
+    .eyebrow{
+      color:var(--gold);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+
+    h1{
+      margin:0;
+      color:var(--teal);
+      font-family:var(--serif);
+      font-weight:700;
+      font-stretch:condensed;
+      font-size:clamp(34px,6vw,58px);
+      line-height:.98;
+      letter-spacing:-.02em;
+    }
+
+    .subtitle{
+      max-width:690px;
+      margin:14px auto 0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.55;
+    }
+
+    .card{
+      background:rgba(255,255,255,.96);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:26px;
+      box-shadow:0 18px 48px rgba(15,91,93,.08);
+    }
+
+    .section-label{
+      margin:0 0 10px;
+      font-family:var(--serif);
+      font-size:22px;
+      color:var(--teal-dark);
+    }
+
+    .mode-switch{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      padding:6px;
+      background:var(--teal-soft);
+      border-radius:14px;
+      margin-bottom:22px;
+    }
+
+    .mode-switch button{
+      border:0;
+      border-radius:10px;
+      min-height:48px;
+      padding:10px 14px;
+      font:600 14px/1.2 var(--sans);
+      color:var(--teal-dark);
+      background:transparent;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+
+    .mode-switch button.active{
+      background:var(--white);
+      color:var(--teal);
+      box-shadow:0 4px 14px rgba(15,91,93,.10);
+    }
+
+    .mode-switch button:focus-visible,
+    input:focus-visible{
+      outline:3px solid rgba(198,154,75,.35);
+      outline-offset:2px;
+    }
+
+    .calc-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(240px,.7fr);
+      gap:16px;
+      align-items:end;
+    }
+
+    label{
+      display:block;
+      font-weight:600;
+      font-size:14px;
+      margin-bottom:8px;
+      color:var(--ink);
+    }
+
+    .input-wrap{
+      position:relative;
+    }
+
+    input{
+      width:100%;
+      min-height:56px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:0 58px 0 15px;
+      font:400 20px var(--sans);
+      color:var(--ink);
+      background:#fff;
+      outline:none;
+    }
+
+    input:focus{ border-color:var(--gold); }
+
+    .unit{
+      position:absolute;
+      right:16px;
+      top:50%;
+      transform:translateY(-50%);
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .helper{
+      margin-top:7px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .result-main{
+      min-height:86px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      border:1px solid rgba(198,154,75,.34);
+      border-radius:14px;
+      padding:15px 18px;
+      background:var(--gold-soft);
+    }
+
+    .result-main .small{
+      color:#7D6740;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.1em;
+      text-transform:uppercase;
+    }
+
+    .result-main .big{
+      margin-top:4px;
+      font-family:var(--serif);
+      font-size:34px;
+      line-height:1;
+      color:var(--teal-dark);
+      font-weight:700;
+    }
+
+    .diagram-title{
+      margin:28px 0 11px;
+      font-family:var(--serif);
+      color:var(--teal-dark);
+      font-size:21px;
+    }
+
+    .diagram{
+      display:grid;
+      grid-template-columns:1fr 1fr .985fr .97fr;
+      gap:6px;
+      align-items:stretch;
+    }
+
+    .panel{
+      position:relative;
+      min-width:0;
+      min-height:135px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      text-align:center;
+      padding:16px 9px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      overflow:hidden;
+    }
+
+    .panel::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height:4px;
+      background:var(--teal);
+    }
+
+    .panel.flap{
+      background:#FFFCF7;
+      border-style:dashed;
+    }
+
+    .panel.flap::before{ background:var(--gold); }
+
+    .panel-name{
+      position:relative;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.25;
+    }
+
+    .panel-value{
+      position:relative;
+      font-family:var(--serif);
+      font-size:28px;
+      line-height:1;
+      color:var(--ink);
+      font-weight:700;
+    }
+
+    .panel-rule{
+      position:relative;
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .summary{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:18px;
+      align-items:center;
+      border-top:1px solid var(--line);
+      padding-top:18px;
+    }
+
+    .formula-label{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:3px;
+    }
+
+    .formula{
+      font-size:15px;
+      font-weight:600;
+      color:var(--teal-dark);
+      word-break:break-word;
+    }
+
+    .total-chip{
+      border-radius:999px;
+      padding:10px 15px;
+      background:var(--teal);
+      color:#fff;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .note{
+      margin-top:18px;
+      border-left:4px solid var(--gold);
+      border-radius:9px;
+      padding:12px 14px;
+      background:#FFF9EE;
+      color:#6D5A36;
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .error{
+      display:none;
+      margin-top:8px;
+      color:#9F2D2D;
+      font-size:12px;
+      font-weight:600;
+    }
+
+    footer{
+      margin-top:16px;
+      text-align:center;
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    @media (max-width:700px){
+      body{ padding:20px 12px; }
+      .card{ padding:18px; border-radius:18px; }
+      .calc-grid{ grid-template-columns:1fr; }
+      .diagram{ grid-template-columns:1fr 1fr; }
+      .summary{ grid-template-columns:1fr; }
+      .total-chip{ justify-self:start; }
+      .mode-switch{ grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <header class="header">
+      <div class="eyebrow">Calculadora de plegado</div>
+      <h1>Cuadríptico envolvente</h1>
+      <p class="subtitle">
+        Calculá automáticamente las cuatro palas según la medida que ya tengas definida:
+        el ancho cerrado o el ancho total abierto.
+      </p>
+    </header>
+
+    <section class="card">
+      <h2 class="section-label">¿Qué medida conocés?</h2>
+
+      <div class="mode-switch" role="group" aria-label="Seleccionar tipo de medida">
+        <button id="closedBtn" class="active" type="button" aria-pressed="true">
+          Tamaño cerrado
+        </button>
+        <button id="openBtn" type="button" aria-pressed="false">
+          Tamaño abierto
+        </button>
+      </div>
+
+      <div class="calc-grid">
+        <div>
+          <label id="inputLabel" for="measure">Ancho cerrado (tapa / contratapa)</label>
+          <div class="input-wrap">
+            <input id="measure" type="number" inputmode="decimal" min="5" step="0.1" value="135" />
+            <span class="unit">mm</span>
+          </div>
+          <div class="helper" id="helper">
+            X corresponde al ancho final de la tapa y la contratapa.
+          </div>
+          <div class="error" id="error">Ingresá una medida válida.</div>
+        </div>
+
+        <div class="result-main" aria-live="polite">
+          <div class="small" id="resultLabel">Ancho total abierto</div>
+          <div class="big" id="mainResult">534 mm</div>
+        </div>
+      </div>
+
+      <h3 class="diagram-title">Distribución de palas</h3>
+
+      <div class="diagram" aria-label="Distribución de palas del cuadríptico">
+        <div class="panel">
+          <div class="panel-name">Tapa</div>
+          <div class="panel-value" id="p1">135 mm</div>
+          <div class="panel-rule">X</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-name">Contratapa</div>
+          <div class="panel-value" id="p2">135 mm</div>
+          <div class="panel-rule">X</div>
+        </div>
+
+        <div class="panel flap">
+          <div class="panel-name">1.ª solapa interna</div>
+          <div class="panel-value" id="p3">133 mm</div>
+          <div class="panel-rule">X − 2 mm</div>
+        </div>
+
+        <div class="panel flap">
+          <div class="panel-name">2.ª solapa interna</div>
+          <div class="panel-value" id="p4">131 mm</div>
+          <div class="panel-rule">X − 4 mm</div>
+        </div>
+      </div>
+
+      <div class="summary">
+        <div>
+          <div class="formula-label">Cálculo</div>
+          <div class="formula" id="formula">
+            135 + 135 + 133 + 131 = 534 mm
+          </div>
+        </div>
+        <div class="total-chip" id="closedChip">Cerrado: 135 mm</div>
+      </div>
+
+      <div class="note">
+        Cálculo orientativo para cuadríptico envolvente con reducción progresiva de 2 mm:
+        X / X / X−2 / X−4. La tolerancia final puede variar según gramaje, plastificado,
+        hendido y criterio de la imprenta. Confirmar medidas antes de producción.
+      </div>
+    </section>
+
+    <footer>Herramienta para maquetación · Cuadríptico envolvente</footer>
+  </main>
+
+  <script>
+    (() => {
+      const closedBtn = document.getElementById("closedBtn");
+      const openBtn = document.getElementById("openBtn");
+      const measure = document.getElementById("measure");
+      const inputLabel = document.getElementById("inputLabel");
+      const helper = document.getElementById("helper");
+      const resultLabel = document.getElementById("resultLabel");
+      const mainResult = document.getElementById("mainResult");
+      const error = document.getElementById("error");
+
+      const p1 = document.getElementById("p1");
+      const p2 = document.getElementById("p2");
+      const p3 = document.getElementById("p3");
+      const p4 = document.getElementById("p4");
+      const formula = document.getElementById("formula");
+      const closedChip = document.getElementById("closedChip");
+
+      let mode = "closed";
+
+      function fmt(n){
+        const rounded = Math.round((n + Number.EPSILON) * 100) / 100;
+        return Number.isInteger(rounded)
+          ? String(rounded)
+          : String(rounded).replace(".", ",");
+      }
+
+      function setMode(nextMode){
+        mode = nextMode;
+        const closed = mode === "closed";
+
+        closedBtn.classList.toggle("active", closed);
+        openBtn.classList.toggle("active", !closed);
+        closedBtn.setAttribute("aria-pressed", String(closed));
+        openBtn.setAttribute("aria-pressed", String(!closed));
+
+        if (closed){
+          inputLabel.textContent = "Ancho cerrado (tapa / contratapa)";
+          helper.textContent = "X corresponde al ancho final de la tapa y la contratapa.";
+          resultLabel.textContent = "Ancho total abierto";
+          measure.value = "135";
+        } else {
+          inputLabel.textContent = "Ancho total abierto";
+          helper.textContent = "La calculadora obtiene automáticamente el ancho X de tapa/contratapa.";
+          resultLabel.textContent = "Ancho cerrado (tapa)";
+          measure.value = "540";
+        }
+
+        update();
+      }
+
+      function update(){
+        const entered = parseFloat(String(measure.value).replace(",", "."));
+
+        if (!Number.isFinite(entered) || entered <= 0){
+          error.style.display = "block";
+          return;
+        }
+
+        let x, openWidth;
+
+        if (mode === "closed"){
+          x = entered;
+          openWidth = (4 * x) - 6;
+        } else {
+          openWidth = entered;
+          x = (openWidth + 6) / 4;
+        }
+
+        if (x <= 4){
+          error.textContent = "La medida es demasiado pequeña para aplicar esta compensación.";
+          error.style.display = "block";
+          return;
+        }
+
+        error.style.display = "none";
+        error.textContent = "Ingresá una medida válida.";
+
+        const flap1 = x - 2;
+        const flap2 = x - 4;
+
+        p1.textContent = fmt(x) + " mm";
+        p2.textContent = fmt(x) + " mm";
+        p3.textContent = fmt(flap1) + " mm";
+        p4.textContent = fmt(flap2) + " mm";
+
+        formula.textContent =
+          `${fmt(x)} + ${fmt(x)} + ${fmt(flap1)} + ${fmt(flap2)} = ${fmt(openWidth)} mm`;
+
+        closedChip.textContent = `Cerrado: ${fmt(x)} mm`;
+
+        if (mode === "closed"){
+          mainResult.textContent = fmt(openWidth) + " mm";
+        } else {
+          mainResult.textContent = fmt(x) + " mm";
+        }
+      }
+
+      closedBtn.addEventListener("click", () => setMode("closed"));
+      openBtn.addEventListener("click", () => setMode("open"));
+      measure.addEventListener("input", update);
+
+      update();
+    })();
+  </script>
+</body>
+</html>
