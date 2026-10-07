@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const {calculate} = require('../calculator.js');
-assert.deepEqual(calculate('tri','closed',100),{x:100,panels:[98,100,100],openWidth:298});
-assert.deepEqual(calculate('tri','open',298),{x:100,panels:[98,100,100],openWidth:298});
+assert.deepEqual(calculate('tri','closed',100),{x:100,panels:[100,100,98],openWidth:298});
+assert.deepEqual(calculate('tri','open',298),{x:100,panels:[100,100,98],openWidth:298});
 assert.deepEqual(calculate('quad','closed',135),{x:135,panels:[135,135,133,131],openWidth:534});
 assert.deepEqual(calculate('quad','open',534),{x:135,panels:[135,135,133,131],openWidth:534});
 for(const kind of ['tri','quad'])for(const x of [50,75,100,100.5,135,190]) {
