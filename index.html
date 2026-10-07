@@ -1,26 +1,27 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-jd-tool="leaflets">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Calculadora de medidas para cuadríptico envolvente." />
-  <title>Calculadora de Cuadríptico Envolvente</title>
+  <meta name="description" content="Calculadora de folletos: tríptico y cuadríptico envolvente." />
+  <title>Calculadora de folletos · Judaica Design®</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Condensed&display=swap" rel="stylesheet">
   <style>
     :root{
-      --teal:#0F5B5D;
-      --teal-dark:#0A4446;
+      --teal:#245c5d;
+      --teal-dark:#244c4d;
       --teal-soft:#EAF4F3;
-      --gold:#C69A4B;
+      --gold:#c5a36d;
       --gold-soft:#F8F0E1;
       --ink:#193234;
-      --muted:#6D7A7B;
-      --line:#D9E2E1;
-      --paper:#FAF9F6;
-      --white:#FFFFFF;
+      --muted:#716b62;
+      --line:#e2dacb;
+      --paper:#f5f2eb;
+      --white:#fffdf8;
 
-      --serif:"Roslindale Condensed","Roslindale","Iowan Old Style","Baskerville","Times New Roman",serif;
-      --sans:"Aktiv Grotesk","Helvetica Neue",Arial,sans-serif;
+      --serif:"Libre Caslon Condensed",Georgia,serif;
+      --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
     }
 
     *{ box-sizing:border-box; }
@@ -31,8 +32,7 @@
       margin:0;
       min-height:100vh;
       background:
-        radial-gradient(circle at top left, rgba(198,154,75,.10), transparent 28rem),
-        linear-gradient(180deg,#FBFAF7 0%,#F4F7F6 100%);
+        var(--paper);
       color:var(--ink);
       font-family:var(--sans);
       padding:32px 16px;
@@ -61,7 +61,7 @@
       margin:0;
       color:var(--teal);
       font-family:var(--serif);
-      font-weight:700;
+      font-weight:400;
       font-stretch:condensed;
       font-size:clamp(34px,6vw,58px);
       line-height:.98;
@@ -77,7 +77,7 @@
     }
 
     .card{
-      background:rgba(255,255,255,.96);
+      background:var(--white);
       border:1px solid var(--line);
       border-radius:22px;
       padding:26px;
@@ -332,7 +332,11 @@
       body{ padding:20px 12px; }
       .card{ padding:18px; border-radius:18px; }
       .calc-grid{ grid-template-columns:1fr; }
-      .diagram{ grid-template-columns:1fr 1fr; }
+      .diagram{ gap:4px; }
+      .panel{padding:12px 3px;min-height:125px;}
+      .panel-name{font-size:10px;}
+      .panel-value{font-size:23px;}
+      .panel-rule{font-size:10px;}
       .summary{ grid-template-columns:1fr; }
       .total-chip{ justify-self:start; }
       .mode-switch{ grid-template-columns:1fr; }
@@ -344,14 +348,19 @@
   <main class="wrap">
     <header class="header">
       <div class="eyebrow">Calculadora de plegado</div>
-      <h1>Cuadríptico envolvente</h1>
+      <h1>Calculadora de folletos</h1>
       <p class="subtitle">
-        Calculá automáticamente las cuatro palas según la medida que ya tengas definida:
+        Elegí tríptico o cuadríptico envolvente y calculá las palas a partir de
         el ancho cerrado o el ancho total abierto.
       </p>
     </header>
 
     <section class="card">
+      <h2 class="section-label">Tipo de folleto</h2>
+      <div class="mode-switch" role="group" aria-label="Tipo de folleto">
+        <button id="triBtn" type="button" aria-pressed="false">Tríptico · 3 palas</button>
+        <button id="quadBtn" class="active" type="button" aria-pressed="true">Cuadríptico · 4 palas</button>
+      </div>
       <h2 class="section-label">¿Qué medida conocés?</h2>
 
       <div class="mode-switch" role="group" aria-label="Seleccionar tipo de medida">
@@ -382,9 +391,9 @@
         </div>
       </div>
 
-      <h3 class="diagram-title">Distribución de palas</h3>
+      <h3 class="diagram-title">Distribución de palas</h3><p class="helper" id="orientation">Vista exterior · de izquierda a derecha.</p>
 
-      <div class="diagram" aria-label="Distribución de palas del cuadríptico">
+      <div id="diagram" class="diagram" aria-label="Distribución de palas del cuadríptico">
         <div class="panel">
           <div class="panel-name">Tapa</div>
           <div class="panel-value" id="p1">135 mm</div>
@@ -420,120 +429,18 @@
         <div class="total-chip" id="closedChip">Cerrado: 135 mm</div>
       </div>
 
-      <div class="note">
+      <div class="note" id="note">
         Cálculo orientativo para cuadríptico envolvente con reducción progresiva de 2 mm:
         X / X / X−2 / X−4. La tolerancia final puede variar según gramaje, plastificado,
         hendido y criterio de la imprenta. Confirmar medidas antes de producción.
       </div>
     </section>
 
-    <footer>Herramienta para maquetación · Cuadríptico envolvente</footer>
+    <footer>Judaica Design® · Herramienta para maquetación</footer>
   </main>
 
-  <script>
-    (() => {
-      const closedBtn = document.getElementById("closedBtn");
-      const openBtn = document.getElementById("openBtn");
-      const measure = document.getElementById("measure");
-      const inputLabel = document.getElementById("inputLabel");
-      const helper = document.getElementById("helper");
-      const resultLabel = document.getElementById("resultLabel");
-      const mainResult = document.getElementById("mainResult");
-      const error = document.getElementById("error");
-
-      const p1 = document.getElementById("p1");
-      const p2 = document.getElementById("p2");
-      const p3 = document.getElementById("p3");
-      const p4 = document.getElementById("p4");
-      const formula = document.getElementById("formula");
-      const closedChip = document.getElementById("closedChip");
-
-      let mode = "closed";
-
-      function fmt(n){
-        const rounded = Math.round((n + Number.EPSILON) * 100) / 100;
-        return Number.isInteger(rounded)
-          ? String(rounded)
-          : String(rounded).replace(".", ",");
-      }
-
-      function setMode(nextMode){
-        mode = nextMode;
-        const closed = mode === "closed";
-
-        closedBtn.classList.toggle("active", closed);
-        openBtn.classList.toggle("active", !closed);
-        closedBtn.setAttribute("aria-pressed", String(closed));
-        openBtn.setAttribute("aria-pressed", String(!closed));
-
-        if (closed){
-          inputLabel.textContent = "Ancho cerrado (tapa / contratapa)";
-          helper.textContent = "X corresponde al ancho final de la tapa y la contratapa.";
-          resultLabel.textContent = "Ancho total abierto";
-          measure.value = "135";
-        } else {
-          inputLabel.textContent = "Ancho total abierto";
-          helper.textContent = "La calculadora obtiene automáticamente el ancho X de tapa/contratapa.";
-          resultLabel.textContent = "Ancho cerrado (tapa)";
-          measure.value = "540";
-        }
-
-        update();
-      }
-
-      function update(){
-        const entered = parseFloat(String(measure.value).replace(",", "."));
-
-        if (!Number.isFinite(entered) || entered <= 0){
-          error.style.display = "block";
-          return;
-        }
-
-        let x, openWidth;
-
-        if (mode === "closed"){
-          x = entered;
-          openWidth = (4 * x) - 6;
-        } else {
-          openWidth = entered;
-          x = (openWidth + 6) / 4;
-        }
-
-        if (x <= 4){
-          error.textContent = "La medida es demasiado pequeña para aplicar esta compensación.";
-          error.style.display = "block";
-          return;
-        }
-
-        error.style.display = "none";
-        error.textContent = "Ingresá una medida válida.";
-
-        const flap1 = x - 2;
-        const flap2 = x - 4;
-
-        p1.textContent = fmt(x) + " mm";
-        p2.textContent = fmt(x) + " mm";
-        p3.textContent = fmt(flap1) + " mm";
-        p4.textContent = fmt(flap2) + " mm";
-
-        formula.textContent =
-          `${fmt(x)} + ${fmt(x)} + ${fmt(flap1)} + ${fmt(flap2)} = ${fmt(openWidth)} mm`;
-
-        closedChip.textContent = `Cerrado: ${fmt(x)} mm`;
-
-        if (mode === "closed"){
-          mainResult.textContent = fmt(openWidth) + " mm";
-        } else {
-          mainResult.textContent = fmt(x) + " mm";
-        }
-      }
-
-      closedBtn.addEventListener("click", () => setMode("closed"));
-      openBtn.addEventListener("click", () => setMode("open"));
-      measure.addEventListener("input", update);
-
-      update();
-    })();
-  </script>
+  <script src="calculator.js?v=20261007-folletos"></script>
+<script src="jd-embed.js?v=20261007-tools"></script>
 </body>
 </html>
+
