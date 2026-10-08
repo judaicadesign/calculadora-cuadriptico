@@ -33,11 +33,11 @@
       $(id).classList.toggle('active', active); $(id).setAttribute('aria-pressed', String(active));
     }
     const tri = kind === 'tri';
-    $('inputLabel').textContent = mode === 'closed' ? 'Ancho cerrado (portada / contraportada)' : 'Ancho total abierto';
-    $('helper').textContent = mode === 'closed' ? 'X es el ancho de la portada y la contraportada.' : 'Se obtiene X a partir del ancho total, incluyendo la compensación de las solapas.';
-    $('resultLabel').textContent = mode === 'closed' ? 'Ancho total abierto' : 'Ancho cerrado (portada)';
+    $('inputLabel').textContent = mode === 'closed' ? 'Ancho cerrado (tapa / contratapa)' : 'Ancho total abierto';
+    $('helper').textContent = mode === 'closed' ? 'X es el ancho de la tapa y la contratapa.' : 'Se obtiene X a partir del ancho total, incluyendo la compensación de las solapas.';
+    $('resultLabel').textContent = mode === 'closed' ? 'Ancho total abierto' : 'Ancho cerrado (tapa)';
     $('measure').min = mode === 'closed' ? (tri ? '2.01' : '4.01') : (tri ? '4.01' : '10.01');
-    $('orientation').textContent = tri ? 'Vista exterior · izquierda: portada; centro: contraportada; derecha: solapa interna.' : 'Vista exterior · tapa, contratapa y dos solapas internas.';
+    $('orientation').textContent = tri ? 'Vista exterior (lectura hebrea), de izquierda a derecha: tapa · contratapa · solapa interna.' : 'Vista exterior (lectura hebrea), de izquierda a derecha: tapa · contratapa · 1.ª solapa interna · 2.ª solapa interna.';
     $('note').textContent = tri
       ? 'Tríptico envolvente: solo la solapa interna se reduce 2 mm. Distribución exterior: X / X / X − 2. La tolerancia puede variar según gramaje, plastificado, hendido y criterio de la imprenta. Confirmar medidas antes de producción.'
       : 'Cuadríptico envolvente: reducción progresiva de 2 mm. Distribución: X / X / X − 2 / X − 4. La tolerancia puede variar según gramaje, plastificado, hendido y criterio de la imprenta. Confirmar medidas antes de producción.';
@@ -47,11 +47,11 @@
       $('mainResult').textContent = '—'; $('formula').textContent = 'Ingresá una medida válida para calcular.'; $('closedChip').textContent = 'Cerrado: —'; $('diagram').replaceChildren(); return;
     }
     $('error').style.display = 'none'; $('measure').removeAttribute('aria-invalid');
-    const labels = tri ? ['Portada','Contraportada','Solapa interna'] : ['Tapa','Contratapa','1.ª solapa interna','2.ª solapa interna'];
+    const labels = tri ? ['Tapa','Contratapa','Solapa interna'] : ['Tapa','Contratapa','1.ª solapa interna','2.ª solapa interna'];
     const rules = tri ? ['X','X','X − 2 mm'] : ['X','X','X − 2 mm','X − 4 mm'];
     $('diagram').replaceChildren();
-    $('diagram').style.gridTemplateColumns = result.panels.map(n => n + 'fr').join(' ');
-    $('diagram').setAttribute('aria-label', 'Distribución de palas del ' + (tri ? 'tríptico' : 'cuadríptico'));
+    $('diagram').style.gridTemplateColumns = result.panels.map(n => n + 'fr').join(' '); // Esquema proporcional, no plantilla de corte.
+    $('diagram').setAttribute('aria-label', 'Distribución de paneles del ' + (tri ? 'tríptico' : 'cuadríptico'));
     result.panels.forEach((n,i) => {
       const panel = document.createElement('div'); panel.className = 'panel' + ((tri ? i===2 : i>1) ? ' flap' : '');
       for (const [className, text] of [['panel-name',labels[i]],['panel-value',fmt(n)+' mm'],['panel-rule',rules[i]]]) {
