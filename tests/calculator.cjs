@@ -1,4 +1,6 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const {calculate} = require('../calculator.js');
 assert.deepEqual(calculate('tri','closed',100),{x:100,panels:[100,100,98],openWidth:298});
 assert.deepEqual(calculate('tri','open',298),{x:100,panels:[100,100,98],openWidth:298});
@@ -15,3 +17,15 @@ assert.throws(()=>calculate('tri','open',4));
 assert.throws(()=>calculate('quad','closed',4));
 assert.throws(()=>calculate('quad','open',10));
 console.log('Tríptico, cuadríptico, cálculo inverso, decimales y valores inválidos: OK');
+
+// Comprobaciones de textos y orden visual en el código actual.
+const js = fs.readFileSync(path.join(__dirname,'../calculator.js'),'utf8');
+const html = fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+assert.match(js, /\['Tapa','Contratapa','Solapa interna'\]/);
+assert.match(js, /\['Tapa','Contratapa','1\.ª solapa interna','2\.ª solapa interna'\]/);
+assert.match(js, /Vista exterior \(lectura hebrea\), de izquierda a derecha: tapa · contratapa · solapa interna/);
+assert.match(js, /Vista exterior \(lectura hebrea\), de izquierda a derecha: tapa · contratapa · 1\.ª solapa interna · 2\.ª solapa interna/);
+assert.match(html, /Tríptico · 3 paneles/);
+assert.match(html, /Cuadríptico · 4 paneles/);
+assert.match(html, /Esquema proporcional orientativo/);
+console.log('Etiquetas, orden hebreo y advertencia de escala: OK');
